@@ -1,5 +1,5 @@
 import { createPortal } from 'react-dom';
-import React, { useEffect, ReactNode, MouseEvent, useRef } from 'react';
+import React, { useEffect, ReactNode, MouseEvent } from 'react';
 import Button from '@/components/Button';
 import styles from './index.less';
 
@@ -65,8 +65,6 @@ function Modal(props: Props) {
     destroyOnClose,
   } = props;
 
-  const modelContentWrapperRef = useRef(null);
-
   function handleCloseByMask(e: MouseEvent) {
     e.stopPropagation();
     if (!maskClosable) {
@@ -105,15 +103,8 @@ function Modal(props: Props) {
       body.style.overflowY = 'auto';
     }
 
-    function handleDestroyOnClose() {
-      if (modelContentWrapperRef && modelContentWrapperRef.current) {
-        modelContentWrapperRef.current = null;
-      }
-    }
-
     if (!visible) {
       afterClose && afterClose();
-      destroyOnClose && handleDestroyOnClose();
     }
 
     return () => {
@@ -123,6 +114,10 @@ function Modal(props: Props) {
     };
   }, [visible]);
 
+  if (destroyOnClose && !visible) {
+    return null;
+  }
+
   return createPortal(
     <div
       className={`${styles.wrapper} ${visible && styles.show_modal}`}
@@ -130,15 +125,15 @@ function Modal(props: Props) {
       style={Object.assign({}, maskStyle, { zIndex })}
     >
       <div
-        ref={modelContentWrapperRef}
-        className={`${styles.content_wrapper} ${centered &&
-          styles.content_wrapper_centered}`}
+        className={`${styles.content_wrapper} ${
+          centered && styles.content_wrapper_centered
+        }`}
         style={Object.assign(
           {},
           {
             width: width + 'px',
           },
-          bodyStyle,
+          bodyStyle
         )}
       >
         {closable && (
@@ -153,20 +148,20 @@ function Modal(props: Props) {
         {footer || (
           <div className={styles.footer_wrapper}>
             <Button
-              size="small"
+              size='small'
               onClick={() => onCancel && onCancel()}
               wrapperStyle={{ marginRight: '10px' }}
             >
               {cancelText}
             </Button>
-            <Button type="primary" size="small" onClick={() => onOk && onOk()}>
+            <Button type='primary' size='small' onClick={() => onOk && onOk()}>
               {okText}
             </Button>
           </div>
         )}
       </div>
     </div>,
-    document.body,
+    document.body
   );
 }
 
